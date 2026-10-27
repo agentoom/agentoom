@@ -4,51 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b428c4fe475ecafb080e8f04a4436dcd",
+    "content-hash": "d411c6ccde84cef4dda82eee304f3d1e",
     "packages": [
-        {
-            "name": "agentoom/core-accessibility-widget",
-            "version": "0.8.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/agentoom/core-pkg-accessibility-widget.git",
-                "reference": "90bb89cfdf90190753aa68c9892eb24099eb3fbe"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/agentoom/core-pkg-accessibility-widget/zipball/90bb89cfdf90190753aa68c9892eb24099eb3fbe",
-                "reference": "90bb89cfdf90190753aa68c9892eb24099eb3fbe",
-                "shasum": ""
-            },
-            "require": {
-                "agentoom/core-main": "*@dev",
-                "laravel/framework": "^13.0",
-                "php": "^8.2"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Agentoom\\AccessibilityWidget\\Providers\\AccessibilityWidgetServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Agentoom\\AccessibilityWidget\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Agentoom Accessibility Widget package",
-            "support": {
-                "issues": "https://github.com/agentoom/core-pkg-accessibility-widget/issues",
-                "source": "https://github.com/agentoom/core-pkg-accessibility-widget/tree/v0.8.0"
-            },
-            "time": "2026-10-27T08:35:55+00:00"
-        },
         {
             "name": "agentoom/core-chat-widget",
             "version": "0.8.0",

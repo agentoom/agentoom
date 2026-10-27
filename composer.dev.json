@@ -17,7 +17,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "agentoom/core-accessibility-widget": "^0.8.0",
         "agentoom/core-chat-widget": "^0.8.0",
         "agentoom/core-compliance": "^0.8.0",
         "agentoom/core-instant-messaging": "^0.8.0",

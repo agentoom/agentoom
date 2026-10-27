@@ -142,13 +142,12 @@ All API credentials are encrypted at rest using **AES-256-GCM**.
 
 ## 🌟 What's Included in Community Edition?
 
-Agentoom Community packages 8 decoupled open-source packages:
+Agentoom Community packages 7 decoupled open-source packages:
 
 | Package | Version | Description |
 |---|---|---|
 | [`agentoom/core-main`](https://packagist.org/packages/agentoom/core-main) | `^0.9.0` | **Core Runtime**: Agent lifecycle, pipelines, multi-provider LLMs, MCP runtime, credit accounting, and tool engine. |
 | [`agentoom/core-chat-widget`](https://packagist.org/packages/agentoom/core-chat-widget) | `^0.8.0` | **Chat Widget**: Drop-in embeddable real-time streaming web chat and conversational forms. |
-| [`agentoom/core-accessibility-widget`](https://packagist.org/packages/agentoom/core-accessibility-widget) | `^0.8.0` | **Accessibility**: WCAG 2.1 / ADA compliant accessibility toolbar (contrast, dyslexia fonts, cursor aids). |
 | [`agentoom/core-sentinel`](https://packagist.org/packages/agentoom/core-sentinel) | `^0.8.0` | **Security Buffer**: Human-in-the-loop authorization gates and Email OTP verification for high-risk actions. |
 | [`agentoom/core-compliance`](https://packagist.org/packages/agentoom/core-compliance) | `^0.8.0` | **EU AI Act Engine**: Automated risk classification, auditable decision logs, and emergency shutdown switches. |
 | [`agentoom/core-privacy`](https://packagist.org/packages/agentoom/core-privacy) | `^0.8.0` | **PII Protection**: Deterministic regex detection and reversible token pseudonymization. |
