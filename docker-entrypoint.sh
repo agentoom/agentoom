@@ -74,7 +74,6 @@ if [ "${APP_ENV:-production}" = "production" ]; then
     echo "==> Caching configuration and routes for production..."
     php artisan config:cache || true
     php artisan route:cache || true
-    php artisan view:cache || true
 fi
 
 # 9. Start background queue worker
