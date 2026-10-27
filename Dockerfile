@@ -1,5 +1,14 @@
 # ============================================================
-# Stage 1: Build Frontend Assets
+# Stage 1: Install Composer Dependencies
+# ============================================================
+FROM composer:2 AS composer-builder
+WORKDIR /app
+
+COPY composer*.json composer.lock* ./
+RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --ignore-platform-reqs
+
+# ============================================================
+# Stage 2: Build Frontend Assets
 # ============================================================
 FROM node:22-alpine AS frontend-builder
 WORKDIR /app
@@ -8,12 +17,14 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+# Copy vendor from composer-builder so Tailwind/Flux can resolve CSS and Blade stubs
+COPY --from=composer-builder /app/vendor ./vendor
 RUN npm run build
 
 # ============================================================
-# Stage 2: Final Production / Community Container
+# Stage 3: Final Production / Community Container
 # ============================================================
-FROM dunglas/frankenphp:latest-php8.4-alpine
+FROM dunglas/frankenphp:1-php8.4-alpine
 
 LABEL org.opencontainers.image.title="Agentoom Community Edition" \
       org.opencontainers.image.description="Autonomous AI Agent Orchestration Platform" \
@@ -35,16 +46,20 @@ RUN apk add --no-cache curl bash && \
     pcntl \
     gd
 
+# Copy Composer binary from official image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
 
 # Copy application codebase
 COPY . .
 
-# Copy compiled frontend assets from builder
+# Copy pre-installed vendor and compiled assets
+COPY --from=composer-builder /app/vendor ./vendor
 COPY --from=frontend-builder /app/public/build ./public/build
 
-# Install composer dependencies (optimized production autoloader)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Finish autoloader optimization
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
 # Prepare directories and permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs database && \

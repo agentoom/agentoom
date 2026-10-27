@@ -4,6 +4,9 @@
 # ==============================================================================
 services:
   agentoom:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: ghcr.io/agentoom/community-core:latest
     container_name: agentoom-app
     restart: unless-stopped
