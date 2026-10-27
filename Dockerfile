@@ -21,8 +21,9 @@ LABEL org.opencontainers.image.title="Agentoom Community Edition" \
       org.opencontainers.image.source="https://github.com/agentoom/agentoom" \
       org.opencontainers.image.licenses="MIT"
 
-# Install required PHP extensions for Agentoom
-RUN install-php-extensions \
+# Install system dependencies & required PHP extensions for Agentoom
+RUN apk add --no-cache curl bash && \
+    install-php-extensions \
     pdo_sqlite \
     sqlite3 \
     pdo_pgsql \
@@ -32,8 +33,7 @@ RUN install-php-extensions \
     intl \
     zip \
     pcntl \
-    gd \
-    curl
+    gd
 
 WORKDIR /app
 

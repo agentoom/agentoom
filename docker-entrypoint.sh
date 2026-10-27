@@ -56,6 +56,12 @@ fi
 echo "==> Starting Agentoom background task worker..."
 php artisan queue:work --tries=3 --timeout=90 --daemon &
 
+# 10. Start Reverb WebSocket server if enabled
+if [ "${BROADCAST_CONNECTION:-reverb}" = "reverb" ]; then
+    echo "==> Starting Reverb WebSocket server on port 8080..."
+    php artisan reverb:start --host=0.0.0.0 --port=8080 &
+fi
+
 echo "==> Agentoom initialization complete! Web server starting on port 80..."
 
 exec "$@"

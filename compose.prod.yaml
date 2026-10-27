@@ -1,0 +1,44 @@
+# ==============================================================================
+# Agentoom Community Edition - Production Deployment Profile
+# Usage: docker compose -f compose.prod.yaml up -d
+# ==============================================================================
+services:
+  agentoom:
+    image: ghcr.io/agentoom/community-core:latest
+    container_name: agentoom-production
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+      - "${REVERB_PORT:-8080}:8080"
+    environment:
+      APP_NAME: "Agentoom Community Edition"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: "${APP_URL:-http://localhost}"
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /app/database/database.sqlite
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: "${REVERB_APP_ID:-agentoom}"
+      REVERB_APP_KEY: "${REVERB_APP_KEY:-agentoom-key}"
+      REVERB_APP_SECRET: "${REVERB_APP_SECRET:-agentoom-secret}"
+      REVERB_HOST: "0.0.0.0"
+      REVERB_PORT: "8080"
+      REVERB_SCHEME: "${REVERB_SCHEME:-http}"
+    volumes:
+      - agentoom-storage:/app/storage
+      - agentoom-db:/app/database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  agentoom-storage:
+    name: agentoom-storage
+  agentoom-db:
+    name: agentoom-db

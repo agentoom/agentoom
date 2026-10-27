@@ -1,0 +1,53 @@
+# ==============================================================================
+# Agentoom Community Edition - Development & Testing Profile
+# Usage: docker compose -f compose.dev.yaml up
+# ==============================================================================
+services:
+  agentoom-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: agentoom/community:dev
+    container_name: agentoom-dev-app
+    ports:
+      - "${APP_PORT:-8000}:80"
+      - "${VITE_PORT:-5173}:5173"
+      - "${REVERB_PORT:-8080}:8080"
+    environment:
+      APP_NAME: "Agentoom Community (Dev)"
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost:8000"
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /app/database/database.sqlite
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: "${REVERB_APP_ID:-agentoom}"
+      REVERB_APP_KEY: "${REVERB_APP_KEY:-agentoom-key}"
+      REVERB_APP_SECRET: "${REVERB_APP_SECRET:-agentoom-secret}"
+      REVERB_HOST: "0.0.0.0"
+      REVERB_PORT: "8080"
+      REVERB_SCHEME: "http"
+      VITE_REVERB_APP_KEY: "${REVERB_APP_KEY:-agentoom-key}"
+      VITE_REVERB_HOST: "localhost"
+      VITE_REVERB_PORT: "8080"
+      VITE_REVERB_SCHEME: "http"
+    volumes:
+      # Mount host files for live coding and hot reload
+      - .:/app
+      # Preserve container vendor and node_modules if present
+      - /app/vendor
+      - /app/node_modules
+      - agentoom-dev-storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  agentoom-dev-storage:
+    name: agentoom-dev-storage

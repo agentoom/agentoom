@@ -2,71 +2,126 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%20%7C%208.4-777BB4.svg)](https://php.net)
-[![Docker Ready](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](docker-compose.yml)
+[![Docker Ready](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](compose.yaml)
 [![Ecosystem](https://img.shields.io/badge/Agentoom-v0.9.0-6366F1.svg)](https://packagist.org/packages/agentoom/core-main)
+[![OCI Image](https://img.shields.io/badge/GHCR-community--core-2ea44f.svg)](https://github.com/agentoom/agentoom/pkgs/container/community-core)
 
-**Agentoom** is an enterprise-grade AI operating system for creating, orchestrating, and securing autonomous AI agents. 
+**Agentoom** is an enterprise-grade AI operating system for creating, orchestrating, and securing autonomous AI agents.
 
-This repository (`agentoom/agentoom`) is the **official open-source community distribution**. It packages all public Agentoom modules into a turn-key Laravel application ready to evaluate or deploy in production with a single command.
+This repository (`agentoom/agentoom`) is the **official open-source community distribution**. It packages all public Agentoom modules into a turn-key application ready to evaluate, customize, or run in production with a single command.
 
 ---
 
-## ⚡ Quickstart with Docker (Recommended)
+## ⚡ Quickstart with Docker Compose
 
-You can launch a complete, self-contained Agentoom instance with SQLite, database queues, and pre-built frontend in under a minute:
+Agentoom adopts the modern Docker Compose specification (`compose.yaml`) and provides dedicated profiles for testing/development and production.
+
+### Option A: Standard Quickstart (`compose.yaml`)
+Builds and boots a complete local instance with SQLite, background workers, and Reverb WebSocket streaming:
 
 ```bash
-# 1. Clone the repository
+# Clone repository
 git clone https://github.com/agentoom/agentoom.git
 cd agentoom
 
-# 2. Start the container
+# Start the stack
 docker compose up -d
 ```
+Access the application at 👉 **[http://localhost:8000](http://localhost:8000)**.
 
-Once running, navigate to:
-👉 **[http://localhost:8000](http://localhost:8000)**
+---
 
-### First-Time Access & Onboarding
-On initial boot, the container automatically migrates the database, discovers all AI tools, and creates your default administrator:
+### Option B: Testing & Development Profile (`compose.dev.yaml`)
+Designed for developers extending Agentoom or developing custom AI tools. Features **live code reloading**, debug logging enabled, and Vite hot-reloading port exposure:
+
+```bash
+docker compose -f compose.dev.yaml up
+```
+- **App URL**: `http://localhost:8000`
+- **Vite Hot-Reload**: `http://localhost:5173`
+- **Reverb WebSockets**: `ws://localhost:8080`
+- Mounts the local repository inside the container so code changes reflect instantly.
+
+---
+
+### Option C: Production Deployment Profile (`compose.prod.yaml`)
+Designed for production hosts, VPS, or cloud deployments. Pulls the pre-built, hardened multi-stage image from the GitHub Container Registry with **zero build time** and persistent volume management:
+
+```bash
+docker compose -f compose.prod.yaml up -d
+```
+- **Image**: `ghcr.io/agentoom/community-core:latest`
+- **Port**: Serves directly on port `80` (or your customized `APP_PORT`).
+- **Persistent Data**: SQLite database and user uploads stored in Docker named volumes (`agentoom-storage`, `agentoom-db`).
+
+---
+
+## 🔑 AI Provider Configuration
+
+> [!NOTE]
+> **No API keys in `.env` required!**  
+> Agentoom manages LLM provider connections dynamically within the application database.
+
+To connect your AI providers:
+1. Log in to the Admin Dashboard (default: `superadmin@unusualdope.com` / `password`).
+2. Navigate to **Admin &rarr; Configs &rarr; Providers**.
+3. Toggle and enter your API keys for:
+   - **OpenAI** (GPT-4o, GPT-4o-mini, o1, o3-mini)
+   - **Anthropic** (Claude 3.7 Sonnet, Claude 3.5 Haiku)
+   - **Google Gemini** (Gemini 2.5 Flash, Gemini 2.5 Pro)
+   - **Groq** (Llama 3.3 70B, DeepSeek R1 Distill)
+   - **DeepSeek** (DeepSeek V3, DeepSeek R1)
+   - **Ollama / Local LLMs** (Any self-hosted model via local HTTP endpoint)
+
+All credentials are encrypted at rest using AES-256-GCM. You can test connections, swap default models, and configure provider fallbacks directly in the UI without restarting your containers.
+
+---
+
+## 👤 First-Time Access & Onboarding
+
+On initial boot, the application automatically runs database migrations, discovers all AI tools, and creates your default administrator:
+
 - **Default Email**: `superadmin@unusualdope.com`
-- **Default Password**: `password` *(Change this immediately in settings or via the onboarding wizard)*
+- **Default Password**: `password`
+
+*(Please change the password immediately via Settings upon logging in.)*
 
 ---
 
 ## 🌟 What's Included in Community Edition?
 
-Agentoom Community is built upon 8 modular, decoupled Composer packages:
+Agentoom Community packages 8 modular, decoupled open-source packages:
 
 | Package | Version | Description |
 |---|---|---|
-| [`agentoom/core-main`](https://packagist.org/packages/agentoom/core-main) | `^0.9.0` | **Core Runtime**: Agent lifecycle, pipelines, multi-provider LLMs, MCP runtime, and credit accounting. |
+| [`agentoom/core-main`](https://packagist.org/packages/agentoom/core-main) | `^0.9.0` | **Core Runtime**: Agent lifecycle, pipelines, multi-provider LLMs, MCP runtime, credit accounting, and tool engine. |
 | [`agentoom/core-chat-widget`](https://packagist.org/packages/agentoom/core-chat-widget) | `^0.8.0` | **Chat Widget**: Drop-in embeddable real-time streaming web chat and conversational forms. |
-| [`agentoom/core-accessibility-widget`](https://packagist.org/packages/agentoom/core-accessibility-widget) | `^0.8.0` | **Accessibility**: WCAG 2.1 / ADA compliant toolbar (contrast, fonts, cursor aids). |
-| [`agentoom/core-sentinel`](https://packagist.org/packages/agentoom/core-sentinel) | `^0.8.0` | **Security Buffer**: Human-in-the-loop authorization gates and Email OTP verification for risky tools. |
-| [`agentoom/core-compliance`](https://packagist.org/packages/agentoom/core-compliance) | `^0.8.0` | **EU AI Act Engine**: Automated risk assessments, audit logs, and emergency shutdown switches. |
+| [`agentoom/core-accessibility-widget`](https://packagist.org/packages/agentoom/core-accessibility-widget) | `^0.8.0` | **Accessibility**: WCAG 2.1 / ADA compliant accessibility toolbar (contrast, dyslexia fonts, cursor aids). |
+| [`agentoom/core-sentinel`](https://packagist.org/packages/agentoom/core-sentinel) | `^0.8.0` | **Security Buffer**: Human-in-the-loop authorization gates and Email OTP verification for high-risk actions. |
+| [`agentoom/core-compliance`](https://packagist.org/packages/agentoom/core-compliance) | `^0.8.0` | **EU AI Act Engine**: Automated risk classification, auditable decision logs, and emergency shutdown switches. |
 | [`agentoom/core-privacy`](https://packagist.org/packages/agentoom/core-privacy) | `^0.8.0` | **PII Protection**: Deterministic regex detection and reversible token pseudonymization. |
-| [`agentoom/core-instant-messaging`](https://packagist.org/packages/agentoom/core-instant-messaging) | `^0.8.0` | **Messaging Bridge**: Native Telegram bot connector for multi-channel conversations. |
-| [`agentoom/core-openapi-v1`](https://packagist.org/packages/agentoom/core-openapi-v1) | `^0.8.0` | **OpenAI Gateway**: OpenAI-compatible `/v1/chat/completions` API proxy for any SDK. |
+| [`agentoom/core-instant-messaging`](https://packagist.org/packages/agentoom/core-instant-messaging) | `^0.8.0` | **Messaging Bridge**: Native Telegram bot connector for multi-channel autonomous conversations. |
+| [`agentoom/core-openapi-v1`](https://packagist.org/packages/agentoom/core-openapi-v1) | `^0.8.0` | **OpenAI Gateway**: OpenAI-compatible `/v1/chat/completions` API proxy for integration with any standard SDK. |
 
 ---
 
-## 🛠️ Composer Installation Profiles
+## 🛠️ Composer Profiles (Dev vs. Production)
 
-This repository ships with two tailored Composer configurations:
+This repository includes two Composer configurations depending on your use case:
 
 ### 1. Discovery / Developer Profile (`composer.json` / `composer.dev.json`)
-The default profile. Ideal for developers testing tools, running benchmarks, or contributing:
-- Includes testing suites (`pestphp/pest`, `mockery`), interactive CLI debugging (`laravel/pail`, `laravel/sail`), code analysis (`larastan`), and code style tools (`pint`).
-- Supports hot-reload dev servers via `composer run dev`.
+Active by default. Includes testing and developer tools:
+- Test runner (`pestphp/pest`, `mockery`)
+- Interactive CLI tools (`laravel/pail`, `laravel/sail`)
+- Code style and static analysis (`pint`, `larastan`)
 
-### 2. Production / Robust Profile (`composer.prod.json`)
-Designed for operators, system administrators, and teams who want Agentoom in production without developer tooling:
-- Stripped of all development dependencies.
-- Pinned to exact stable versions.
-- Optimized with authoritative classmaps and bytecode caching (`optimize-autoloader`, `classmap-authoritative`).
+### 2. Production Profile (`composer.prod.json`)
+Designed for operators who want a lightweight, rock-solid production environment:
+- Zero development dependencies
+- Pinned stable package versions
+- Authoritative classmap optimization enabled (`optimize-autoloader`, `classmap-authoritative`)
 
-#### How to Switch Profiles:
+#### Switching Profiles:
 ```bash
 # Switch to Production Profile:
 composer run use-prod
@@ -79,22 +134,22 @@ composer install
 
 ---
 
-## 💻 Manual Installation (Local PHP)
+## 💻 Manual Installation (Host PHP)
 
 If you prefer to run directly on your host machine without Docker:
 
-### Requirements
-- **PHP 8.3 or 8.4** (with `pdo_sqlite` or `pdo_pgsql`, `intl`, `bcmath`, `curl`)
+### Prerequisites
+- **PHP 8.3 or 8.4** (`pdo_sqlite` or `pdo_pgsql`, `intl`, `bcmath`, `curl`, `pcntl`)
 - **Composer 2.2+**
 - **Node.js 20+** & npm
 
-### Installation Steps
+### Setup Steps
 ```bash
-# 1. Clone and enter directory
+# 1. Clone repository
 git clone https://github.com/agentoom/agentoom.git
 cd agentoom
 
-# 2. Automated setup script
+# 2. Automated setup (installs dependencies, generates key, migrates DB)
 composer run setup
 
 # 3. Start development server
@@ -103,35 +158,12 @@ composer run dev
 
 ---
 
-## ⚙️ Environment Configuration
+## 🐳 Container Images
 
-Copy `.env.example` to `.env` and configure your AI providers:
+Official container images are automatically built and published via GitHub Actions to the GitHub Container Registry:
 
-```dotenv
-# Primary LLM API Keys
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-GEMINI_API_KEY=AIza...
-GROQ_API_KEY=gsk_...
-DEEPSEEK_API_KEY=sk-...
-
-# Local Ollama instance
-OLLAMA_BASE_URL=http://localhost:11434
-
-# Realtime WebSocket Streaming (Laravel Reverb)
-REVERB_APP_ID=agentoom
-REVERB_APP_KEY=agentoom-key
-REVERB_APP_SECRET=agentoom-secret
-REVERB_HOST=localhost
-REVERB_PORT=8080
-REVERB_SCHEME=http
-```
-
----
-
-## 🐳 Pre-Built Docker Images
-
-Pre-built Docker images are published automatically to the GitHub Container Registry on every release:
+- `ghcr.io/agentoom/community-core:latest`
+- `ghcr.io/agentoom/agentoom:latest`
 
 ```bash
 docker pull ghcr.io/agentoom/community-core:latest
