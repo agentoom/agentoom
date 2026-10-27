@@ -23,18 +23,33 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          extensions: mbstring, dom, fileinfo, pdo, pdo_sqlite, sqlite3, bcmath, intl, gd
           tools: composer:v2
           coverage: none
 
       - name: Setup Node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Setup Application
+      - name: Prepare Environment File
+        run: cp .env.example .env
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Install NPM Dependencies & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup Database & Agentoom Resources
         run: |
           touch database/database.sqlite
-          composer setup
+          php artisan key:generate
+          php artisan migrate --force
+          php artisan agentoom:install --no-interaction
+          php artisan agentoom:discover-tools --ansi --no-interaction
 
       - name: Run CI Checks
         run: composer ci:check

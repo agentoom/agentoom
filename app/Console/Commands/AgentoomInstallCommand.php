@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Agentoom\Core\Console\Commands\AgentoomInstall as BaseInstallCommand;
+use Agentoom\Core\Models\Configuration;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -23,6 +24,32 @@ class AgentoomInstallCommand extends BaseInstallCommand
     protected $description = 'Install the Agentoom system securely (roles, superadmin, languages, tools)';
 
     /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        $this->info('Starting installation of the Agentoom system...');
+
+        // 1. Create roles
+        $this->createRoles();
+
+        // 2. Create superadmin user and authenticate
+        $this->createSuperAdmin();
+
+        // 3. Add languages
+        $this->addLanguages();
+
+        // 4. Create system resources
+        $this->createSystemResources();
+
+        // 5. Ensure onboarding is shown for fresh installations
+        Configuration::setValue('onboarding_complete', '0');
+        $this->line('Onboarding wizard enabled.');
+
+        $this->info('Installation completed successfully!');
+    }
+
+    /**
      * Create or verify superadmin with secure random generation or environment variables.
      */
     protected function createSuperAdmin(): void
@@ -37,6 +64,7 @@ class AgentoomInstallCommand extends BaseInstallCommand
 
         if ($existingSuperAdmin) {
             $this->info("Superadmin account already exists ({$existingSuperAdmin->email}). Existing credentials preserved.");
+            auth()->login($existingSuperAdmin);
             return;
         }
 
@@ -72,6 +100,9 @@ class AgentoomInstallCommand extends BaseInstallCommand
             $user->assignRole('superadmin');
             $this->line("Assigned 'superadmin' role to {$email}");
         }
+
+        // Authenticate superadmin in CLI context so created system resources belong to this user
+        auth()->login($user);
 
         if ($isGenerated) {
             $this->newLine();
