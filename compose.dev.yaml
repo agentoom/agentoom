@@ -34,10 +34,12 @@ services:
       VITE_REVERB_HOST: "localhost"
       VITE_REVERB_PORT: "8080"
       VITE_REVERB_SCHEME: "http"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@agentoom.local}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
     volumes:
       # Mount host files for live coding and hot reload
       - .:/app
-      # Preserve container vendor and node_modules if present
+      # Preserve container vendor and node_modules
       - /app/vendor
       - /app/node_modules
       - agentoom-dev-storage:/app/storage

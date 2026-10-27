@@ -9,7 +9,7 @@ if [ ! -f /app/.env ]; then
     cp /app/.env.example /app/.env
 fi
 
-# 2. Ensure SQLite database file exists if DB_CONNECTION is sqlite
+# 2. Database readiness check
 if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
     DB_FILE="${DB_DATABASE:-/app/database/database.sqlite}"
     mkdir -p "$(dirname "$DB_FILE")"
@@ -18,6 +18,31 @@ if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
         touch "$DB_FILE"
         chown -R www-data:www-data "$(dirname "$DB_FILE")"
     fi
+elif [ "${DB_CONNECTION}" = "pgsql" ]; then
+    echo "==> Waiting for PostgreSQL database at ${DB_HOST:-postgres}:${DB_PORT:-5432} to become ready..."
+    max_tries=30
+    count=0
+    until php -r '
+        $host = getenv("DB_HOST") ?: "postgres";
+        $port = getenv("DB_PORT") ?: "5432";
+        $db = getenv("DB_DATABASE") ?: "agentoom";
+        $user = getenv("DB_USERNAME") ?: "agentoom";
+        $pass = getenv("DB_PASSWORD") ?: "";
+        try {
+            new PDO("pgsql:host=$host;port=$port;dbname=$db", $user, $pass, [PDO::ATTR_TIMEOUT => 2]);
+            exit(0);
+        } catch (\Throwable $e) {
+            exit(1);
+        }
+    ' 2>/dev/null; do
+        count=$((count + 1))
+        if [ $count -ge $max_tries ]; then
+            echo "==> ERROR: PostgreSQL was not ready after ${max_tries} seconds. Exiting."
+            exit 1
+        fi
+        sleep 1
+    done
+    echo "==> PostgreSQL connection confirmed."
 fi
 
 # 3. Application Key
@@ -35,8 +60,8 @@ fi
 echo "==> Running database migrations..."
 php artisan migrate --force
 
-# 6. Agentoom core bootstrap (roles, languages, starter admin)
-echo "==> Running Agentoom system installer..."
+# 6. Agentoom core bootstrap (roles, languages, secure admin, resources)
+echo "==> Initializing Agentoom system..."
 php artisan agentoom:install --no-interaction || true
 
 # 7. Tool discovery & system users
