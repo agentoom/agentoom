@@ -142,16 +142,16 @@
         },
         {
             "name": "agentoom/core-main",
-            "version": "0.9.2",
+            "version": "0.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/agentoom/core-pkg-main.git",
-                "reference": "0035ce9ed92b846f0c583ac85a15a97974622ded"
+                "reference": "4442b08f0f0a37d93733c0492ad94425f3d245f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/agentoom/core-pkg-main/zipball/0035ce9ed92b846f0c583ac85a15a97974622ded",
-                "reference": "0035ce9ed92b846f0c583ac85a15a97974622ded",
+                "url": "https://api.github.com/repos/agentoom/core-pkg-main/zipball/4442b08f0f0a37d93733c0492ad94425f3d245f8",
+                "reference": "4442b08f0f0a37d93733c0492ad94425f3d245f8",
                 "shasum": ""
             },
             "require": {
@@ -194,9 +194,9 @@
             "description": "Agentoom Core package",
             "support": {
                 "issues": "https://github.com/agentoom/core-pkg-main/issues",
-                "source": "https://github.com/agentoom/core-pkg-main/tree/v0.9.2"
+                "source": "https://github.com/agentoom/core-pkg-main/tree/v0.9.3"
             },
-            "time": "2026-10-27T12:22:40+00:00"
+            "time": "2026-10-27T12:44:15+00:00"
         },
         {
             "name": "agentoom/core-openapi-v1",
