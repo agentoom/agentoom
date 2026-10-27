@@ -8,6 +8,10 @@ Route::get('/', function () {
     return redirect()->route('admin.dashboard');
 })->name('home');
 
+Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
 Route::get('/ready', function () {
     $checks = [
         'database' => false,
