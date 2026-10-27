@@ -1,0 +1,97 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "agentoom/agentoom",
+    "type": "project",
+    "description": "Agentoom Community Edition (Production Profile): Robust Autonomous AI Agent Orchestration Platform.",
+    "keywords": [
+        "agentoom",
+        "ai-agents",
+        "agent-framework",
+        "autonomous-agents",
+        "laravel",
+        "mcp",
+        "privacy",
+        "eu-ai-act",
+        "chat-widget"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "agentoom/core-accessibility-widget": "0.8.0",
+        "agentoom/core-chat-widget": "0.8.0",
+        "agentoom/core-compliance": "0.8.0",
+        "agentoom/core-instant-messaging": "0.8.0",
+        "agentoom/core-main": "0.9.0",
+        "agentoom/core-openapi-v1": "0.8.0",
+        "agentoom/core-privacy": "0.8.0",
+        "agentoom/core-sentinel": "0.8.0",
+        "inertiajs/inertia-laravel": "^3.1",
+        "laravel/chisel": "^0.1.0",
+        "laravel/fortify": "^1.37.2",
+        "laravel/framework": "^13.17",
+        "laravel/reverb": "^1.0",
+        "laravel/tinker": "^3.0",
+        "livewire/blaze": "^1.0",
+        "livewire/flux": "^2.13.1",
+        "livewire/livewire": "^4.1",
+        "spatie/laravel-markdown": "^2.8",
+        "symfony/yaml": "^8.1"
+    },
+    "require-dev": {},
+    "autoload": {
+        "exclude-from-classmap": [
+            "vendor/agentoom/core-main/database/seeders/DatabaseSeeder.php",
+            "vendor/agentoom/core-main/database/factories/UserFactory.php"
+        ],
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "scripts": {
+        "setup": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate --force",
+            "@php artisan migrate --force",
+            "@php artisan agentoom:install --no-interaction",
+            "@php artisan agentoom:discover-tools --ansi --no-interaction",
+            "@php artisan agentoom:create-missing-project-system-users --ansi --no-interaction",
+            "@php artisan config:cache",
+            "@php artisan route:cache",
+            "@php artisan view:cache",
+            "@php artisan event:cache"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi",
+            "@php artisan agentoom:discover-tools --ansi --no-interaction"
+        ],
+        "use-dev": [
+            "@php -r \"copy('composer.dev.json', 'composer.json'); echo 'Switched to Discovery/Dev composer.json. Run: composer install to apply.\\n';\""
+        ],
+        "use-prod": [
+            "@php -r \"copy('composer.prod.json', 'composer.json'); echo 'Already using Production composer.json.\\n';\""
+        ],
+        "pre-package-uninstall": [
+            "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "classmap-authoritative": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

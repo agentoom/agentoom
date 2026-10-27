@@ -1,0 +1,36 @@
+services:
+  agentoom:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/agentoom/community-core:latest
+    container_name: agentoom-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+      - "${REVERB_PORT:-8080}:8080"
+    environment:
+      APP_NAME: "Agentoom Community Edition"
+      APP_ENV: "${APP_ENV:-production}"
+      APP_DEBUG: "${APP_DEBUG:-false}"
+      APP_URL: "${APP_URL:-http://localhost:8000}"
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /app/database/database.sqlite
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+    volumes:
+      - agentoom-storage:/app/storage
+      - agentoom-db:/app/database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  agentoom-storage:
+    name: agentoom-storage
+  agentoom-db:
+    name: agentoom-db
