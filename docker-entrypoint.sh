@@ -46,9 +46,19 @@ elif [ "${DB_CONNECTION}" = "pgsql" ]; then
 fi
 
 # 3. Application Key
-if ! grep -q "APP_KEY=base64:" /app/.env && [ -z "$APP_KEY" ]; then
+if [ -n "$APP_KEY" ]; then
+    echo "==> Using APP_KEY from environment..."
+    sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" /app/.env 2>/dev/null || echo "APP_KEY=${APP_KEY}" >> /app/.env
+    echo "$APP_KEY" > /app/storage/.app_key 2>/dev/null || true
+elif [ -f /app/storage/.app_key ] && [ -s /app/storage/.app_key ]; then
+    SAVED_KEY="$(cat /app/storage/.app_key)"
+    echo "==> Restoring APP_KEY from persistent storage volume..."
+    export APP_KEY="$SAVED_KEY"
+    sed -i "s|^APP_KEY=.*|APP_KEY=${SAVED_KEY}|" /app/.env 2>/dev/null || echo "APP_KEY=${SAVED_KEY}" >> /app/.env
+elif ! grep -q "APP_KEY=base64:" /app/.env; then
     echo "==> Generating application encryption key..."
     php artisan key:generate --force
+    grep "APP_KEY=" /app/.env | head -n 1 | cut -d '=' -f2- > /app/storage/.app_key 2>/dev/null || true
 fi
 
 # 4. Storage link and assets

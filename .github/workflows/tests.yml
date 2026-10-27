@@ -51,6 +51,7 @@ jobs:
           php artisan vendor:publish --tag=agentoom-assets --force
           php artisan agentoom:install --no-interaction
           php artisan agentoom:discover-tools --ansi --no-interaction
+          php artisan agentoom:create-missing-project-system-users --ansi --no-interaction
 
       - name: Run CI Checks
         run: composer ci:check

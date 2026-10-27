@@ -19,6 +19,15 @@
                 disabled: option.disabled,
             }));
             this.syncSource();
+            this.$watch('open', value => {
+                if (!value) {
+                    this.query = '';
+                } else {
+                    this.$nextTick(() => {
+                        this.$refs.searchInput?.focus();
+                    });
+                }
+            });
         },
         get selectedValues() {
             return {{ $multiple ? 'Array.isArray(this.selected) ? this.selected.map(String) : []' : '[this.selected ?? \'\'].map(String)' }};
@@ -78,7 +87,26 @@
             <div class="border-b border-zinc-200 p-2 dark:border-white/10">{{ $search }}</div>
         @elseif ($attributes->has('searchable'))
             <div class="border-b border-zinc-200 p-2 dark:border-white/10">
-                <input type="search" x-model="query" x-on:keydown.enter.prevent placeholder="{{ __('Search...') }}" class="w-full rounded-md border-zinc-200 bg-transparent text-sm dark:border-white/10" />
+                <input
+                    type="search"
+                    name="listbox_search"
+                    x-ref="searchInput"
+                    x-model="query"
+                    x-bind:disabled="!open"
+                    x-on:keydown.enter.prevent
+                    placeholder="{{ __('Search...') }}"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    role="searchbox"
+                    aria-autocomplete="list"
+                    data-bwignore="true"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    data-form-type="other"
+                    class="w-full rounded-md border-zinc-200 bg-transparent text-sm dark:border-white/10"
+                />
             </div>
         @endif
         <div class="max-h-60 overflow-y-auto p-1" role="listbox" @if ($multiple) aria-multiselectable="true" @endif>
