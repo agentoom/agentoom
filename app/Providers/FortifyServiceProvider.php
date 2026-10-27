@@ -4,11 +4,14 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Actions\Fortify\UpdateUserPassword;
+use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -26,8 +29,9 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Fortify::viewPrefix('agentoom-core::auth.');
+
         $this->configureActions();
-        $this->configureViews();
         $this->configureRateLimiting();
     }
 
@@ -36,22 +40,11 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureActions(): void
     {
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
-    }
-
-    /**
-     * Configure Fortify views.
-     */
-    private function configureViews(): void
-    {
-        Fortify::loginView(fn () => view('livewire.auth.login'));
-        Fortify::verifyEmailView(fn () => view('livewire.auth.verify-email'));
-        Fortify::twoFactorChallengeView(fn () => view('livewire.auth.two-factor-challenge'));
-        Fortify::confirmPasswordView(fn () => view('livewire.auth.confirm-password'));
-        Fortify::registerView(fn () => view('livewire.auth.register'));
-        Fortify::resetPasswordView(fn () => view('livewire.auth.reset-password'));
-        Fortify::requestPasswordResetLinkView(fn () => view('livewire.auth.forgot-password'));
+        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
     }
 
     /**

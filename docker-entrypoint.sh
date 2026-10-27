@@ -51,9 +51,12 @@ if ! grep -q "APP_KEY=base64:" /app/.env && [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
-# 4. Storage link
+# 4. Storage link and assets
 if [ ! -L /app/public/storage ]; then
     php artisan storage:link || true
+fi
+if [ ! -d /app/public/images ]; then
+    php artisan vendor:publish --tag=agentoom-assets --force || true
 fi
 
 # 5. Database migrations

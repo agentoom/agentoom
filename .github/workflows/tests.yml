@@ -48,6 +48,7 @@ jobs:
           touch database/database.sqlite
           php artisan key:generate
           php artisan migrate --force
+          php artisan vendor:publish --tag=agentoom-assets --force
           php artisan agentoom:install --no-interaction
           php artisan agentoom:discover-tools --ansi --no-interaction
 

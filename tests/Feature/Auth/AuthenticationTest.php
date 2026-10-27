@@ -3,10 +3,19 @@
 use App\Models\User;
 use Laravel\Fortify\Features;
 
-test('login screen can be rendered', function () {
+test('login screen renders agentoom login view without signup option', function () {
     $response = $this->get(route('login'));
 
     $response->assertOk();
+    $response->assertSee('images/agentoom_logo.svg');
+    $response->assertDontSee('Sign up');
+    $response->assertDontSee("Don't have an account");
+});
+
+test('registration is disabled and returns 404', function () {
+    $response = $this->get('/register');
+
+    $response->assertNotFound();
 });
 
 test('users can authenticate using the login screen', function () {
@@ -19,7 +28,7 @@ test('users can authenticate using the login screen', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
+        ->assertRedirect(route('home', absolute: false));
 
     $this->assertAuthenticated();
 });
