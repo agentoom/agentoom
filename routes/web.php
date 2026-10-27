@@ -21,7 +21,7 @@ Route::get('/ready', function () {
     try {
         DB::select('SELECT 1');
         $checks['database'] = true;
-    } catch (\Throwable) {
+    } catch (Throwable) {
     }
 
     try {
@@ -30,7 +30,7 @@ Route::get('/ready', function () {
             $redis->ping();
             $checks['redis'] = true;
         }
-    } catch (\Throwable) {
+    } catch (Throwable) {
     }
 
     $healthy = $checks['database'];

@@ -30,20 +30,21 @@ class CreateAdminCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $name = $this->option('name');
         if (! $name && $this->input->isInteractive()) {
             $name = $this->ask('Administrator name', 'Administrator');
         }
-        $name = $name ?: 'Administrator';
+        $name = is_string($name) && $name !== '' ? $name : 'Administrator';
 
         $email = $this->option('email');
         if (! $email && $this->input->isInteractive()) {
             $email = $this->ask('Administrator email address');
         }
         if (! $email) {
-            $email = env('ADMIN_EMAIL') ?: 'admin@agentoom.local';
+            $envEmail = getenv('ADMIN_EMAIL');
+            $email = is_string($envEmail) && $envEmail !== '' ? $envEmail : 'admin@agentoom.local';
         }
 
         $password = $this->option('password');
@@ -63,17 +64,18 @@ class CreateAdminCommand extends Command
         if ($user) {
             if (! $this->option('force') && ! ($this->input->isInteractive() && $this->confirm("User [{$email}] already exists. Reset password?", false))) {
                 $this->warn("User [{$email}] already exists. Password was not changed. Use --force to update.");
+
                 return 0;
             }
             $user->name = $name;
-            $user->password = Hash::make($password);
+            $user->password = Hash::make((string) $password);
             $user->save();
             $this->info("User [{$email}] updated successfully.");
         } else {
             $user = $userModel::create([
                 'name' => $name,
                 'email' => $email,
-                'password' => Hash::make($password),
+                'password' => Hash::make((string) $password),
                 'email_verified_at' => now(),
             ]);
             $this->info("User [{$email}] created successfully.");
@@ -90,9 +92,9 @@ class CreateAdminCommand extends Command
             ['Field', 'Value'],
             [
                 ['Name', $name],
-                ['Email', $email],
+                ['Email', (string) $email],
                 ['Role', $role],
-                ['Password', $isGenerated ? $password : '(hidden as entered)'],
+                ['Password', $isGenerated ? (string) $password : '(hidden as entered)'],
             ]
         );
 

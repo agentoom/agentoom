@@ -26,7 +26,7 @@ class AgentoomInstallCommand extends BaseInstallCommand
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Starting installation of the Agentoom system...');
 
@@ -47,6 +47,8 @@ class AgentoomInstallCommand extends BaseInstallCommand
         $this->line('Onboarding wizard enabled.');
 
         $this->info('Installation completed successfully!');
+
+        return 0;
     }
 
     /**
@@ -65,17 +67,27 @@ class AgentoomInstallCommand extends BaseInstallCommand
         if ($existingSuperAdmin) {
             $this->info("Superadmin account already exists ({$existingSuperAdmin->email}). Existing credentials preserved.");
             auth()->login($existingSuperAdmin);
+
             return;
         }
 
-        // Determine email: CLI option -> env('ADMIN_EMAIL') -> default
-        $email = $this->option('email') ?: (env('ADMIN_EMAIL') ?: 'admin@agentoom.local');
+        // Determine email: CLI option -> environment -> default
+        $emailOption = $this->option('email');
+        $envEmail = getenv('ADMIN_EMAIL');
+        $email = is_string($emailOption) && $emailOption !== ''
+            ? $emailOption
+            : (is_string($envEmail) && $envEmail !== '' ? $envEmail : 'admin@agentoom.local');
 
-        // Determine password: CLI option -> env('ADMIN_PASSWORD') -> secure random password
-        $providedPassword = $this->option('password') ?: env('ADMIN_PASSWORD');
+        // Determine password: CLI option -> environment -> secure random password
+        $passwordOption = $this->option('password');
+        $envPassword = getenv('ADMIN_PASSWORD');
+        $providedPassword = is_string($passwordOption) && $passwordOption !== ''
+            ? $passwordOption
+            : (is_string($envPassword) && $envPassword !== '' ? $envPassword : null);
+
         $isGenerated = false;
 
-        if (! empty($providedPassword)) {
+        if ($providedPassword !== null) {
             $password = $providedPassword;
         } else {
             $password = Str::password(20);
@@ -88,7 +100,7 @@ class AgentoomInstallCommand extends BaseInstallCommand
             $user = $userModel::create([
                 'name' => 'Super Admin',
                 'email' => $email,
-                'password' => Hash::make($password),
+                'password' => Hash::make((string) $password),
                 'email_verified_at' => now(),
             ]);
             $this->line("Superadmin user created: {$email}");
