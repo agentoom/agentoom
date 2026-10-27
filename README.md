@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%20%7C%208.4-777BB4.svg)](https://php.net)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2017-336791.svg)](compose.prod.yaml)
 [![Docker Ready](https://img.shields.io/badge/Docker-Compose%20v2-2496ED.svg)](compose.yaml)
-[![Ecosystem](https://img.shields.io/badge/Agentoom-v0.9.1-6366F1.svg)](https://packagist.org/packages/agentoom/core-main)
+[![Ecosystem](https://img.shields.io/badge/Agentoom-v0.9.41-6366F1.svg)](https://packagist.org/packages/agentoom/core-main)
 [![OCI Image](https://img.shields.io/badge/GHCR-community--core-2ea44f.svg)](https://github.com/agentoom/agentoom/pkgs/container/community-core)
 
 **Agentoom** is an enterprise-grade AI operating system for creating, orchestrating, and securing autonomous AI agents.
