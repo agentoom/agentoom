@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%20%7C%208.4-777BB4.svg)](https://php.net)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2017-336791.svg)](compose.prod.yaml)
 [![Docker Ready](https://img.shields.io/badge/Docker-Compose%20v2-2496ED.svg)](compose.yaml)
-[![Ecosystem](https://img.shields.io/badge/Agentoom-v0.9.0-6366F1.svg)](https://packagist.org/packages/agentoom/core-main)
+[![Ecosystem](https://img.shields.io/badge/Agentoom-v0.9.1-6366F1.svg)](https://packagist.org/packages/agentoom/core-main)
 [![OCI Image](https://img.shields.io/badge/GHCR-community--core-2ea44f.svg)](https://github.com/agentoom/agentoom/pkgs/container/community-core)
 
 **Agentoom** is an enterprise-grade AI operating system for creating, orchestrating, and securing autonomous AI agents.
@@ -30,32 +30,32 @@ Whether you connect directly to OpenAI, run DeepSeek, self-host via Ollama, or r
 
 ## ⚡ Quickstart with Docker Compose
 
-Agentoom adopts the modern Docker Compose specification (`compose.yaml`) with dedicated setups for production (PostgreSQL) and development (SQLite).
+Agentoom adopts the modern Docker Compose specification with dedicated deployment profiles for production (PostgreSQL) and development (SQLite).
 
 ### Option 1: Production Deployment (PostgreSQL + Pre-built Image)
-Recommended for live servers and operators who want a stable setup without building from source:
+Recommended for live servers, cloud instances, and operators who want a stable setup without compiling from source:
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/agentoom/agentoom.git
 cd agentoom
 
-# Launch with PostgreSQL 17 and pre-built GHCR image
+# 2. Launch PostgreSQL 17 and pre-built Community container
 docker compose -f compose.prod.yaml up -d
 ```
-- **Web App**: `http://localhost` (or `${APP_PORT:-80}`)
+- **Web App**: Access at [http://localhost](http://localhost) (or port `8000` / `${APP_PORT:-80}`).
 - **Database**: Automated PostgreSQL 17 with persistent volume (`agentoom-postgres-data`).
 - **WebSockets**: Laravel Reverb streaming on port `8080`.
 
 ---
 
 ### Option 2: Default Production Stack (PostgreSQL + Local Build)
-Builds the container locally and spins up PostgreSQL 17:
+Builds the container image locally from the Dockerfile and spins up PostgreSQL 17:
 
 ```bash
 docker compose up -d
 ```
-- Access at 👉 **[http://localhost:8000](http://localhost:8000)**.
+- Access at 👉 **[http://localhost:8000](http://localhost:8000)** (or [http://localhost](http://localhost)).
 
 ---
 
@@ -69,6 +69,61 @@ docker compose -f compose.dev.yaml up
 - **Zero-Dependency Database**: Embedded SQLite for rapid local iteration.
 - **Vite Hot-Reload**: Exposes port `5173`.
 - **Debug Mode**: `APP_DEBUG=true` and verbose logging enabled.
+
+---
+
+## 🚀 First-Time Launch & Onboarding Walkthrough
+
+Follow these simple steps for a smooth initial setup:
+
+1. **Retrieve Initial Superadmin Credentials**:
+   On first boot, Agentoom automatically generates a secure 20-character password and outputs it to the container logs:
+   ```bash
+   docker compose -f compose.prod.yaml logs agentoom
+   # or: docker logs agentoom-app
+   ```
+   *(Alternatively, define `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` beforehand).*
+
+2. **Log In**:
+   Navigate to [http://localhost/login](http://localhost/login) (or [http://localhost:8000/login](http://localhost:8000/login)) and sign in with your administrator credentials. Public registration is disabled by default for security.
+
+3. **Complete the Onboarding Wizard (`/onboarding`)**:
+   Upon first login, the interactive setup wizard will guide you through:
+   - **Step 1: AI Provider**: Select your primary provider (e.g. **OpenRouter**, **OpenAI**, **Anthropic**, **Groq**, **DeepSeek**, or local **Ollama**) and enter your API key.
+   - **Step 2: Model Synchronization**: Click **Sync Models**. Agentoom pulls real-time model lists, context limits, and token pricing into your database.
+   - **Step 3: System Agents & Transcription**: Assign default models to core platform agents (Task Orchestrator, Form Builder, etc.) and optionally select an audio transcription model (e.g., **OpenAI Whisper 1**, **Whisper Large V3**, **Gemini**, or **Voxtral**).
+   - **Step 4: Credits & Governance**: Configure low-credit email alert thresholds and EU AI Act compliance toggles.
+
+Once submitted, your platform is fully active and ready to orchestrate autonomous agents!
+
+---
+
+## 💡 Operational Insights for a Smooth Deployment
+
+Based on production experience, keep the following architectural guidelines in mind:
+
+### 1. Application Key Persistence (`APP_KEY`)
+All sensitive provider credentials and API tokens are encrypted at rest using AES-256.
+- **Persistent Volume Protection**: Agentoom automatically saves the generated application encryption key to `/app/storage/.app_key` inside the persistent `agentoom-storage` volume. On subsequent container restarts or rebuilds, this key is restored automatically.
+- **Recommended Practice**: Provide a fixed `APP_KEY` in your `.env` file (e.g., generated with `php artisan key:generate --show`). Both `compose.prod.yaml` and `compose.yaml` forward `APP_KEY: "${APP_KEY:-}"` directly to the container, ensuring your database encryption MAC remains stable indefinitely.
+
+### 2. Port Binding & Host Conflicts
+- By default, the production profile maps both port `80` and port `8000` (`- "${APP_PORT:-80}:80"` and `- "8000:80"`).
+- If your host machine already runs an HTTP server (such as Apache, Nginx, or `systemd-resolved` on port 53/80), configure `APP_PORT=8000` or access the application via **[http://localhost:8000](http://localhost:8000)**.
+- FrankenPHP's internal Caddy server is configured with `SERVER_NAME=:80` to prevent unintended automatic HTTPS redirect loops when behind local proxies or non-TLS ports.
+
+### 3. OpenRouter Model Sync & Whisper Transcription
+- **Text & Chat LLMs**: OpenRouter's standard API catalog provides over 460+ general completion models.
+- **Dedicated Audio & Whisper Models**: Speech-to-text models on OpenRouter (including `openai/whisper-1`, `openai/whisper-large-v3`, and `openai/whisper-large-v3-turbo`) are served through specialized endpoints. Agentoom's model synchronizer automatically queries both endpoints, giving you full access to Whisper and multimodal audio models during onboarding and in settings.
+- **Transcription is Optional**: If you only run text-based agents, you can set the Transcription Model to **None** during onboarding.
+
+### 4. Multi-Provider Flexibility Post-Onboarding
+The onboarding wizard configures your primary provider. Once inside the dashboard:
+- Navigate to **Admin &rarr; Configs &rarr; Providers** anytime to add secondary providers.
+- You can mix and match providers freely—for example, using **OpenRouter** or **Anthropic** for agent cognitive reasoning, and a dedicated **Groq** or **OpenAI** connection for low-latency Whisper transcription.
+
+### 5. Password Manager Compatibility
+To prevent browser extensions (such as Bitwarden, 1Password, or LastPass) from aggressively auto-filling administrator emails into searchable dropdowns and listbox filters, Agentoom incorporates `data-bwignore`, `data-1p-ignore`, and dynamic element disabling. If using auto-fill, ensure your extension fills only the designated login inputs.
 
 ---
 
