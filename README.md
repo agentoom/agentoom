@@ -13,18 +13,18 @@ This repository (`agentoom/agentoom`) is the **official open-source community di
 
 ---
 
-## 🤖 Primary AI Engine: OpenRouter
+## 🤖 Multi-Provider AI Architecture
 
-> [!IMPORTANT]
-> **OpenRouter is the primary, battle-tested LLM engine for Agentoom.**  
-> While Agentoom supports direct integrations with OpenAI, Anthropic, Google Gemini, DeepSeek, Groq, and local Ollama instances, **OpenRouter is by far the most extensively tested provider**, and several core features are natively built around it:
+Agentoom is built from the ground up to be **model- and provider-agnostic**. You can seamlessly run your agents with your provider of choice:
 
-- **Performance & Cost Suffixes**: Natively supports `:nitro` (ultra-low latency routing) and `:floor` (cost-minimized routing) across all agents and pipeline steps.
-- **Granular Prompt Caching**: Automatic context caching controls that slash recurring token costs on repetitive agent workflows.
-- **Dynamic Catalog & Pricing Sync**: Run `php artisan providers:sync-models openrouter` to automatically ingest new models, context windows, and real-time per-token pricing into your database.
-- **Credit Accounting & Multipliers**: Precise token tracking and custom billing multipliers mapped directly to OpenRouter usage rates.
+- **Direct Native Providers**: Full, battle-tested support for **OpenAI** (GPT-4o, o1, o3-mini), **DeepSeek** (DeepSeek V3, DeepSeek R1), **Anthropic** (Claude 3.7 Sonnet), **Google Gemini** (Gemini 2.5 Flash / Pro), **Groq** (ultra-fast Llama inference), and local self-hosted **Ollama** models.
+- **OpenRouter Integration**: OpenRouter is the primary daily driver and most heavily tested provider during Agentoom development. In addition to standard agent completions, it powers several specialized platform features:
+  - **Dynamic Routing Suffixes**: Fine-tune routing per agent or pipeline step using `:nitro` (lowest latency) or `:floor` (cost-optimized).
+  - **Prompt Caching Controls**: Granular toggles to take advantage of prompt caching on long recurring context windows.
+  - **Automated Catalog & Pricing Sync**: Run `php artisan providers:sync-models openrouter` to automatically pull hundreds of models, context limits, and real-time token pricing into your local database.
+  - **Credit Accounting Multipliers**: Granular margin and credit multipliers tailored to OpenRouter token rates.
 
-Other providers (DeepSeek, OpenAI, Anthropic, Gemini, Groq, Ollama) can be used alongside or as fallbacks, but OpenRouter is strongly recommended for complete feature coverage and stability.
+Whether you connect directly to OpenAI, run DeepSeek, self-host via Ollama, or route through OpenRouter, all providers work smoothly across your autonomous agents and pipelines with multi-provider failover support.
 
 ---
 
@@ -126,15 +126,15 @@ Subsequent container restarts will **never overwrite or reset** existing adminis
 > **Zero LLM keys in `.env`!**  
 > Agentoom stores and manages provider API keys dynamically inside the application database.
 
-To configure OpenRouter and other providers:
+To configure your providers:
 1. Log in with your administrator credentials.
 2. Navigate to **Admin &rarr; Configs &rarr; Providers**.
-3. Enable **OpenRouter** and enter your API key (`sk-or-...`).
-4. (Optional) Run model synchronization to pull all available models:
+3. Toggle and enter your API keys for your preferred provider(s): **OpenAI**, **DeepSeek**, **OpenRouter**, **Anthropic**, **Google Gemini**, **Groq**, or local **Ollama** endpoints.
+4. (Optional) If using OpenRouter, you can synchronize the full real-time model catalog:
    ```bash
    docker compose exec agentoom php artisan providers:sync-models openrouter
    ```
-5. Configure fallback providers (OpenAI, DeepSeek, Groq, Anthropic, Gemini, Ollama) as desired.
+5. Set your global default provider or assign specific providers/models per agent and pipeline step.
 
 All API credentials are encrypted at rest using **AES-256-GCM**.
 
